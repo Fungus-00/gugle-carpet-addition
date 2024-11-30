@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -32,14 +33,14 @@ abstract class ItemFrameMixin extends Entity {
     }
 
     @Inject(
-        method = {"dropItem(Lnet/minecraft/world/entity/Entity;Z)V"},
+        method = {"dropItem(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Entity;Z)V"},
         at = {@At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/entity/decoration/ItemFrame;setItem(Lnet/minecraft/world/item/ItemStack;)V"
         )},
         cancellable = true
     )
-    private void dropItem(Entity entity, boolean bl, CallbackInfo ci) {
+    private void dropItem(ServerLevel serverLevel, Entity entity, boolean bl, CallbackInfo ci) {
         if (GcaSetting.betterItemFrameInteraction) {
             if (entity instanceof Player player) {
                 if (!player.getMainHandItem().is(Items.CACTUS) && !player.getOffhandItem().is(Items.CACTUS)) {

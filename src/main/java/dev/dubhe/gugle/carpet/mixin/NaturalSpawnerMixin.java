@@ -23,10 +23,10 @@ abstract class NaturalSpawnerMixin {
         int i = chunkPos.getMinBlockX() + serverLevel.random.nextInt(16);
         int j = chunkPos.getMinBlockZ() + serverLevel.random.nextInt(16);
         int k = levelChunk.getHeight(Heightmap.Types.WORLD_SURFACE, i, j) + 1;
-        for (int i1 = serverLevel.getMinBuildHeight(); i1 < k; ++i1) {
+        for (int i1 = serverLevel.getMinY(); i1 < k; ++i1) {
             if (serverLevel.random.nextDouble() > chance) continue;
             BlockPos blockPos = new BlockPos(i, i1, j);
-            if (blockPos.getY() < serverLevel.getMinBuildHeight() + 1) continue;
+            if (blockPos.getY() < serverLevel.getMinY() + 1) continue;
             NaturalSpawner.spawnCategoryForPosition(mobCategory, serverLevel, levelChunk, blockPos, spawnPredicate, afterSpawnCallback);
         }
         ci.cancel();

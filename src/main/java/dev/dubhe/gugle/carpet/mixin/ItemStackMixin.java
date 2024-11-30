@@ -9,7 +9,7 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -35,7 +35,7 @@ abstract class ItemStackMixin {
     PatchedDataComponentMap components;
 
     @Inject(method = "use", at = @At("HEAD"))
-    private void use(Level level, Player player, InteractionHand usedHand, CallbackInfoReturnable<InteractionResultHolder<ItemStack>> cir) {
+    private void use(Level level, Player player, InteractionHand usedHand, CallbackInfoReturnable<InteractionResult> cir) {
         if (GcaSetting.fakePlayerAutoReplenishment && player instanceof EntityPlayerMPFake fakePlayer) {
             FakePlayerAutoReplenishment.autoReplenishment(fakePlayer);
         }

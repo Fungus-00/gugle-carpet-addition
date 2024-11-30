@@ -3,14 +3,13 @@ package dev.dubhe.gugle.carpet.tools;
 import dev.dubhe.gugle.carpet.mixin.AbstractContainerMenuAccessor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
 public class FakePlayerInventoryMenu extends ChestMenu {
@@ -28,21 +27,16 @@ public class FakePlayerInventoryMenu extends ChestMenu {
         Slot slot = chestMenu.slots.get(slotIndex);
         if (slot.hasItem()) {
             ItemStack slotStack = slot.getItem();
+            var v = slotStack.getItem().components().get(DataComponents.EQUIPPABLE);
             remainingItem = slotStack.copy();
             if (slotIndex < 54) {
                 AbstractContainerMenuAccessor accessor = (AbstractContainerMenuAccessor) (chestMenu);
                 if (!accessor.invokerMoveItemStackTo(slotStack, 54, chestMenu.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (slotStack.getItem() instanceof ArmorItem armorItem) {
-                // 如果是盔甲，移动到盔甲槽
-                int ordinal = armorItem.getType().ordinal();
-                if (FakePlayerInventoryMenu.moveToArmor(chestMenu, slotStack, ordinal) || moveToInventory(chestMenu, slotStack)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (slotStack.is(Items.ELYTRA)) {
-                // 如果是鞘翅，移动到盔甲槽
-                if (FakePlayerInventoryMenu.moveToArmor(chestMenu, slotStack, 1) || moveToInventory(chestMenu, slotStack)) {
+            } else if (v != null && v.slot().getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
+                // 如果是盔甲或鞘翅，移动到盔甲槽
+                if (FakePlayerInventoryMenu.moveToArmor(chestMenu, slotStack, v.slot().getIndex()) || moveToInventory(chestMenu, slotStack)) {
                     return ItemStack.EMPTY;
                 }
             } else if (slotStack.has(DataComponents.FOOD)) {
@@ -77,7 +71,7 @@ public class FakePlayerInventoryMenu extends ChestMenu {
     // 移动到盔甲槽
     private static boolean moveToArmor(ChestMenu chestMenu, ItemStack slotStack, int ordinal) {
         AbstractContainerMenuAccessor accessor = (AbstractContainerMenuAccessor) (chestMenu);
-        return accessor.invokerMoveItemStackTo(slotStack, ordinal + 1, ordinal + 2, false);
+        return accessor.invokerMoveItemStackTo(slotStack, 4 - ordinal, 5 - ordinal, false);
     }
 
     // 将物品移动的物品栏

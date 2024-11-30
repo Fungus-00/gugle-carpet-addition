@@ -20,12 +20,14 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.GameProfileCache;
+import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 
 import java.util.Map;
+import java.util.Set;
 
 public class FakePlayerResident {
     public static JsonObject save(Player player) {
@@ -51,7 +53,7 @@ public class FakePlayerResident {
         }
         if (gameprofile == null) {
             if (!CarpetSettings.allowSpawningOfflinePlayers) {
-                GcaExtension.LOGGER.error("Spawning offline players %s is not allowed!".formatted(username));
+                GcaExtension.LOGGER.error("Spawning offline players {} is not allowed!", username);
                 return;
             }
             gameprofile = new GameProfile(UUIDUtil.createOfflinePlayerUUID(username), username);
@@ -69,7 +71,8 @@ public class FakePlayerResident {
             AttributeInstance attribute = playerMPFake.getAttribute(Attributes.STEP_HEIGHT);
             if (attribute != null) attribute.setBaseValue(0.6F);
             server.getPlayerList().broadcastAll(new ClientboundRotateHeadPacket(playerMPFake, ((byte) (playerMPFake.yHeadRot * 256.0F / 360.0F))), playerMPFake.serverLevel().dimension());
-            server.getPlayerList().broadcastAll(new ClientboundTeleportEntityPacket(playerMPFake), playerMPFake.serverLevel().dimension());
+            server.getPlayerList().broadcastAll(new ClientboundTeleportEntityPacket(playerMPFake.getId(), PositionMoveRotation.of(playerMPFake), Set.of(), playerMPFake.onGround()),
+                    playerMPFake.serverLevel().dimension());
             playerMPFake.getEntityData().set(PlayerAccessor.getCustomisationData(), (byte) 127);
 
             FakePlayerSerializer.applyActionPackFromJson(actions, playerMPFake);
